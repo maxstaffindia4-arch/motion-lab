@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Film, Play, ShieldAlert, Cpu, Download, FileSpreadsheet, Layers, Activity, Sparkles, Loader2, CheckCircle2, AlertCircle, Settings, X } from 'lucide-react';
+import { Film, ShieldAlert, Cpu, Download, FileSpreadsheet, Layers, Activity, Sparkles, Loader2, Settings, X } from 'lucide-react';
 import { Shot } from '../../common/types.js';
 
 interface TopBarProps {
@@ -30,7 +30,7 @@ export const TopBar: React.FC<TopBarProps> = ({
   onProviderChange,
   sessionStats,
   onRenderShot,
-  onRenderVideo,
+  onRenderVideo: _onRenderVideo,
   onOpenBulkImport,
   onExportTimeline,
   onExportZip,

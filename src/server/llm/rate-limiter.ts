@@ -1,6 +1,5 @@
 export class RateLimiter {
   private queue: Array<() => Promise<any>> = [];
-  private activeCount = 0;
   private maxRpm: number;
   private callTimestamps: number[] = [];
 
@@ -59,7 +58,6 @@ export class RateLimiter {
         attempt++;
               const errStatus = err?.status ?? err?.statusCode ?? 0;
         const isQuota429 = errStatus === 429 && isDailyQuota429(err);
-        const isRetriable429 = errStatus === 429 && !isQuota429;
         const isRetriableOrStatus503 = errStatus === 503 || (errStatus === 429 && !isQuota429);
         if (isRetriableOrStatus503 && attempt <= maxRetries) {
           const delaySecs = Math.max(1, err?.retryDelay ?? estimateBackoffSecs(attempt));

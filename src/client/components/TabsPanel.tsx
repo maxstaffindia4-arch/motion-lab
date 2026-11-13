@@ -56,7 +56,7 @@ export const TabsPanel: React.FC<TabsPanelProps> = ({
   shot,
   versions,
   currentVersion,
-  brandTokens,
+  brandTokens: _brandTokens,
   project,
   video,
   onShotUpdated,

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, Upload, CheckCircle2, AlertCircle, FileSpreadsheet } from 'lucide-react';
+import { X, CheckCircle2, AlertCircle, FileSpreadsheet } from 'lucide-react';
 import { BulkImportSchema } from '../../common/types.js';
 
 interface BulkImportModalProps {

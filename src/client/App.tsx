@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Project, Video, Shot, ShotVersion, ProjectBrandTokens } from '../common/types.js';
+import { Project, Video, Shot, ShotVersion } from '../common/types.js';
 import { TopBar } from './components/TopBar.js';
 import { ProjectTree } from './components/ProjectTree.js';
 import { PreviewCanvas } from './components/PreviewCanvas.js';
@@ -23,7 +23,6 @@ export const App: React.FC = () => {
   const [isGenerating, setIsGenerating] = useState<boolean>(false);
   const [isRendering, setIsRendering] = useState<boolean>(false);
   const [currentRenderId, setCurrentRenderId] = useState<string | null>(null);
-  const [lastRenderOutputFile, setLastRenderOutputFile] = useState<string | null>(null);
   const [renderFormat, setRenderFormat] = useState<'mov' | 'webm' | 'mp4-chroma' | 'mp4-full'>('mov');
   const [renderProgress, setRenderProgress] = useState<number>(0);
   const [renderProgressLabel, setRenderProgressLabel] = useState<string>('');

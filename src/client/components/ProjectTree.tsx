@@ -1,6 +1,6 @@
 import React from 'react';
 import { Project, Video, Shot } from '../../common/types.js';
-import { Plus, Video as VideoIcon, Sparkles, CheckCircle2, Clock, AlertCircle } from 'lucide-react';
+import { Plus } from 'lucide-react';
 
 interface ProjectTreeProps {
   project: Project | null;

@@ -1,5 +1,4 @@
 import Anthropic from '@anthropic-ai/sdk';
-import crypto from 'crypto';
 import { ILLMProvider, GenerationContext, LLMResponse } from './provider-interface.js';
 import { LLMGenerationOutputSchema, LLMGenerationOutput } from '../../common/types.js';
 import { buildSystemPrompt, buildUserPrompt } from './prompt-builder.js';

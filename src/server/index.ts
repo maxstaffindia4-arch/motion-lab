@@ -20,14 +20,14 @@ import { parseAnimationPrompt } from '../common/prompt-parser.js';
 import { BulkImportSchema, OutputMode, ShotVersion, DocumentRecord } from '../common/types.js';
 import { TEMPLATES } from '../common/templates.js';
 import { globalRateLimiter } from './llm/rate-limiter.js';
-import { resolveContext, kitIsEmpty } from '../common/context.js';
+import { resolveContext } from '../common/context.js';
 import { activeModel, normalizeModelFqdn } from './llm/model-resolver.js';
 import { buildShotContext, extractDraftedText, auditLint } from './llm/generation-service.js';
 import { renderTemplate } from './templates/render.js';
 import { runLayoutQA } from './layout-qa.js';
 import { TemplateParamsSchema, applyTimingFix, findTimingIssue } from '../common/archetypes.js';
 import { buildSystemPrompt, buildUserPrompt } from './llm/prompt-builder.js';
-import { saveUpload, summarizeDocument, prepareForShot } from './documents.js';
+import { saveUpload, summarizeDocument } from './documents.js';
 
 const PORT = parseInt(process.env.PORT || '3000', 10);
 const HOST = process.env.HOST || '127.0.0.1';
@@ -484,7 +484,7 @@ async function startServer() {
   });
 
   // List Gemini models from API
-  server.get('/api/system/list-models', async (req: any, reply) => {
+  server.get('/api/system/list-models', async (_req: any, reply) => {
     const key = process.env.GEMINI_API_KEY?.trim();
     if (!key) {
       return reply.status(400).send({ ok: false, error: 'GEMINI_API_KEY is missing or empty in .env.' });

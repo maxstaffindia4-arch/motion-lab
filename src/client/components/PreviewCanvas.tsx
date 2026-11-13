@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Play, Pause, RotateCcw, Smartphone, Shield, Loader2, Grid } from 'lucide-react';
+import { Play, Pause, RotateCcw, Smartphone, Shield, Loader2 } from 'lucide-react';
 import { Shot } from '../../common/types.js';
 
 interface PreviewCanvasProps {

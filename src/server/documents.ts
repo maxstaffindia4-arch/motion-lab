@@ -86,7 +86,7 @@ export function estimateTokens(text: string | null, ext: string): number {
   return 64;
 }
 
-function summarizeOnce(name: string, text: string): string {
+function summarizeOnce(_name: string, text: string): string {
   return text.length <= 1200 ? text : `${text.slice(0, 1200)}…`;
 }
 

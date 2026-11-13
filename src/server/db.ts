@@ -1,7 +1,6 @@
 import Database from 'better-sqlite3';
 import path from 'path';
-import fs from 'fs';
-import { Project, Video, Shot, ShotVersion, ProjectBrandTokens, DocumentRecord } from '../common/types.js';
+import { Project, Video, Shot, ShotVersion, DocumentRecord } from '../common/types.js';
 
 const DB_PATH = path.resolve(process.cwd(), 'motion-lab.sqlite');
 

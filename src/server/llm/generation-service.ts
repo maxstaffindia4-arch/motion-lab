@@ -327,8 +327,6 @@ export function buildShotContext(args: {
   return { shot, video, project, resolved, context, shotDir, prepared };
 }
 
-let generateLog: ((msg: string) => void) | undefined = undefined;
-
 export class GenerationService {
   private gemini = new GeminiProvider();
   private claude = new ClaudeProvider();
@@ -340,7 +338,7 @@ export class GenerationService {
   }
 
   setLogFn(fn: ((msg: string) => void) | undefined) {
-    generateLog = fn;
+    setProviderLog(fn);
   }
 
   async generateShot(options: {
@@ -361,7 +359,6 @@ export class GenerationService {
     const { shotId, source, producingPrompt, editInstruction, manualDiff, overrideProvider, activeModel, lockText, onLog } = options;
     // Route provider-level logging (model name, request, result, quota errors) to this build's log.
     if (onLog) {
-      generateLog = onLog;
       setProviderLog(onLog);
     }
 

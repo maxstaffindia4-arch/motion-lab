@@ -241,7 +241,7 @@ export function templateParamSchema(archetype: Archetype, params: TemplateParams
     fields.push({ id: 'fadeOutAt', label: 'Fade out at (s)', type: 'time', group: 'Timing', min: 0, max: params.duration, step: 0.1 });
   }
 
-  params.items.forEach((item, i) => {
+  params.items.forEach((_item, i) => {
     fields.push({ id: `items[${i}].start`, label: `Item ${i + 1} start (s)`, type: 'time', group: 'Timing', min: 0, max: params.duration, step: 0.1 });
   });
 

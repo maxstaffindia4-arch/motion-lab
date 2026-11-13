@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { AlertTriangle, Check, FileText, Loader2, Upload, X, Eye, Trash2, Copy, Download } from 'lucide-react';
+import { AlertTriangle, FileText, Loader2, Upload, X, Eye, Trash2, Copy, Download } from 'lucide-react';
 import { Shot, Project, Video, DocumentRecord } from '../../common/types.js';
 import { resolveContext, BuildOptions, kitIsEmpty } from '../../common/context.js';
 import { parseAnimationPrompt } from '../../common/prompt-parser.js';
