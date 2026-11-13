@@ -8,28 +8,43 @@ import { globalRateLimiter } from './rate-limiter.js';
 export class ClaudeProvider implements ILLMProvider {
   name = 'anthropic';
   private client: Anthropic | null = null;
+  private currentKey: string | null = null;
   private modelName: string;
 
   constructor() {
-    const key = process.env.ANTHROPIC_API_KEY?.trim();
-    if (key) {
-      this.client = new Anthropic({ apiKey: key });
-    }
     this.modelName = process.env.ANTHROPIC_MODEL || 'claude-3-7-sonnet-20250219';
+    this.ensureClient();
+  }
+
+  private ensureClient(): Anthropic | null {
+    const key = process.env.ANTHROPIC_API_KEY?.trim();
+    if (!key) {
+      this.client = null;
+      this.currentKey = null;
+      return null;
+    }
+    if (this.client && this.currentKey === key) {
+      return this.client;
+    }
+    this.client = new Anthropic({ apiKey: key });
+    this.currentKey = key;
+    return this.client;
   }
 
   async generate(context: GenerationContext): Promise<LLMResponse> {
     const startTime = Date.now();
     const systemPrompt = buildSystemPrompt(context.brandKit);
     const userPrompt = buildUserPrompt(context);
+    const client = this.ensureClient();
+    this.modelName = process.env.ANTHROPIC_MODEL || this.modelName || 'claude-3-7-sonnet-20250219';
 
-    if (!this.client || !process.env.ANTHROPIC_API_KEY) {
+    if (!client) {
       throw new Error('ANTHROPIC_API_KEY is not configured in .env');
     }
 
     return globalRateLimiter.execute(async () => {
       // Use Anthropic Prompt Caching on the large static system prompt
-      const response = await this.client!.messages.create({
+      const response = await client.messages.create({
         model: this.modelName,
         max_tokens: 4096,
         system: [

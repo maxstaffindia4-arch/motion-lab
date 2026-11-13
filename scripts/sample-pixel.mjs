@@ -1,7 +1,14 @@
 import { execFileSync } from 'node:child_process';
+import fs from 'node:fs';
 
-const FF = process.env.FFMPEG_PATH || 'C:\\Program Files\\DownloadHelper CoApp\\ffmpeg.exe';
-const FFPROBE = process.env.FFPROBE_PATH || 'C:\\Program Files\\DownloadHelper CoApp\\ffprobe.exe';
+function resolveBin(envVar, defaultCandidate, fallback) {
+  const env = envVar?.replace(/^"|"$/g, '');
+  if (env && fs.existsSync(env)) return env;
+  if (fs.existsSync(defaultCandidate)) return defaultCandidate;
+  return fallback;
+}
+const FF = resolveBin(process.env.FFMPEG_PATH, 'C:\\Program Files\\DownloadHelper CoApp\\ffmpeg.exe', 'ffmpeg');
+const FFPROBE = resolveBin(process.env.FFPROBE_PATH, 'C:\\Program Files\\DownloadHelper CoApp\\ffprobe.exe', 'ffprobe');
 
 function probe(file) {
   const out = execFileSync(FFPROBE, ['-v', 'error', '-select_streams', 'v:0', '-show_entries', 'stream=width,height,pix_fmt', '-of', 'json', file]);

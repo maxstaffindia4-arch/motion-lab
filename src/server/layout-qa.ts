@@ -75,8 +75,7 @@ export async function runLayoutQA(options: LayoutQAOptions): Promise<LayoutQARes
     };
   }
 
-  const { webkit } = await import('playwright');
-  const browser = await webkit.launch();
+  const browser = await launchBrowser();
   try {
     const page = await browser.newPage({ viewport: { width: 1920, height: 1080 } });
     page.on('pageerror', (e) => pageErrors.push(String(e)));
@@ -252,4 +251,18 @@ function clamp(n: number, min: number, max: number): number {
 
 function round2(n: number): number {
   return Math.round(n * 100) / 100;
+}
+
+async function launchBrowser() {
+  const { chromium, webkit } = await import('playwright');
+  try {
+    return await chromium.launch({ headless: true });
+  } catch (_) {}
+  try {
+    return await chromium.launch({ channel: 'chrome', headless: true });
+  } catch (_) {}
+  try {
+    return await chromium.launch({ channel: 'msedge', headless: true });
+  } catch (_) {}
+  return await webkit.launch({ headless: true });
 }

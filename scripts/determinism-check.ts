@@ -3,10 +3,17 @@
  */
 import { chromium } from 'playwright';
 import { execFileSync } from 'node:child_process';
+import fs from 'node:fs';
 import path from 'node:path';
 
 const UI = 'http://127.0.0.1:5173';
-const FFMPEG = process.env.FFMPEG_PATH || 'C:\\Program Files\\DownloadHelper CoApp\\ffmpeg.exe';
+function resolveBin(envVar: string | undefined, defaultCandidate: string, fallback: string): string {
+  const env = envVar?.replace(/^"|"$/g, '');
+  if (env && fs.existsSync(env)) return env;
+  if (fs.existsSync(defaultCandidate)) return defaultCandidate;
+  return fallback;
+}
+const FFMPEG = resolveBin(process.env.FFMPEG_PATH, 'C:\\Program Files\\DownloadHelper CoApp\\ffmpeg.exe', 'ffmpeg');
 const OUT = path.resolve('proof-screenshots');
 
 function raw(file: string) {

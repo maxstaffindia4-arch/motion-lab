@@ -22,7 +22,13 @@ const MIME: Record<string, string> = {
   woff: 'font/woff', woff2: 'font/woff2', ttf: 'font/ttf', otf: 'font/otf'
 };
 
-const FFPROBE = process.env.FFPROBE_PATH?.replace(/^"|"$/g, '') || 'C:\\Program Files\\DownloadHelper CoApp\\ffprobe.exe';
+function getFfprobeBin(): string {
+  const fromEnv = process.env.FFPROBE_PATH?.replace(/^"|"$/g, '');
+  if (fromEnv && fs.existsSync(fromEnv)) return fromEnv;
+  const candidate = 'C:\\Program Files\\DownloadHelper CoApp\\ffprobe.exe';
+  if (fs.existsSync(candidate)) return candidate;
+  return 'ffprobe';
+}
 
 export function extOf(name: string): string {
   return (name.split('.').pop() || '').toLowerCase();
@@ -154,7 +160,7 @@ export async function summarizeDocument(record: DocumentRecord): Promise<string>
 
 function imageSize(file: string): { width: number; height: number } | null {
   try {
-    const out = execFileSync(FFPROBE, ['-v', 'error', '-select_streams', 'v:0', '-show_entries', 'stream=width,height', '-of', 'json', file], { maxBuffer: 1024 * 1024 });
+    const out = execFileSync(getFfprobeBin(), ['-v', 'error', '-select_streams', 'v:0', '-show_entries', 'stream=width,height', '-of', 'json', file], { maxBuffer: 1024 * 1024 });
     const s = JSON.parse(out.toString()).streams[0];
     if (s?.width && s?.height) return { width: s.width, height: s.height };
   } catch (_) {}

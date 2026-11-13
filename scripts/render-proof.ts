@@ -10,8 +10,14 @@ import fs from 'node:fs';
 import path from 'node:path';
 
 const API = process.env.MOTION_API || 'http://127.0.0.1:3000';
-const FFMPEG = process.env.FFMPEG_PATH || 'C:\\Program Files\\DownloadHelper CoApp\\ffmpeg.exe';
-const FFPROBE = process.env.FFPROBE_PATH || 'C:\\Program Files\\DownloadHelper CoApp\\ffprobe.exe';
+function resolveBin(envVar: string | undefined, defaultCandidate: string, fallback: string): string {
+  const env = envVar?.replace(/^"|"$/g, '');
+  if (env && fs.existsSync(env)) return env;
+  if (fs.existsSync(defaultCandidate)) return defaultCandidate;
+  return fallback;
+}
+const FFMPEG = resolveBin(process.env.FFMPEG_PATH, 'C:\\Program Files\\DownloadHelper CoApp\\ffmpeg.exe', 'ffmpeg');
+const FFPROBE = resolveBin(process.env.FFPROBE_PATH, 'C:\\Program Files\\DownloadHelper CoApp\\ffprobe.exe', 'ffprobe');
 const PROOF = path.resolve('proof-screenshots');
 fs.mkdirSync(PROOF, { recursive: true });
 

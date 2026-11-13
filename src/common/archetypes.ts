@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { resolvePalette } from './theme-colors.js';
 
 /**
  * Template-first generation: an archetype is a deterministic layout family.
@@ -120,17 +121,28 @@ export interface RoutedArchetype {
 }
 
 const RULES: Array<{ archetype: Archetype; pattern: RegExp; reason: string }> = [
-  { archetype: 'strike-checklist', pattern: /\bstrike[- ]?through|\bstrike|\bchecklist\b/i, reason: 'prompt mentions strike-through or checklist' },
-  { archetype: 'text-slam', pattern: /\bslam|\bsmash|\bimpact\b/i, reason: 'prompt mentions a slam/impact entrance' },
-  { archetype: 'keyword-pop', pattern: /\bkeyword|\bpop\b/i, reason: 'prompt mentions keyword pops' },
-  { archetype: 'lower-third', pattern: /lower[- ]third|\bname bar\b|\btitle bar\b/i, reason: 'prompt asks for a lower third' },
-  { archetype: 'icon-cards', pattern: /\bicon|\bcards?\b/i, reason: 'prompt asks for icon cards' },
-  { archetype: 'step-card', pattern: /\bstep\b|\bprocess\b|\bworkflow\b/i, reason: 'prompt describes steps' },
-  { archetype: 'end-card', pattern: /\bend card\b|\bcta\b|\bsubscribe\b|\blogo outro\b/i, reason: 'prompt asks for an end card' },
-  { archetype: 'caption-track', pattern: /\bcaption|\bsubtitle|\bsub-?title\b/i, reason: 'prompt asks for captions' },
-  { archetype: 'number-counter', pattern: /\bcounter|\bcount[- ]?up|\bpercent|\b\d+%\b/i, reason: 'prompt asks for a counter' },
-  { archetype: 'whip-transition', pattern: /\bwhip|\bswipe|\btransition\b/i, reason: 'prompt asks for a whip transition' },
-  { archetype: 'glow-sweep', pattern: /\bglow|\bsweep|\bshine\b/i, reason: 'prompt asks for a glow sweep' }
+  // Checklist / strike
+  { archetype: 'strike-checklist', pattern: /\bstrike[- ]?through|\bstrike|\bchecklist\b|\bpain\s*points?\b|\bproblems?\b/i, reason: 'prompt mentions strike-through or checklist' },
+  // High impact text slam
+  { archetype: 'text-slam', pattern: /\bslam|\bsmash|\bimpact\b|\bkinetic\b|\bword[- ]by[- ]word\b|\bhook\b/i, reason: 'prompt mentions a slam/impact entrance' },
+  // Keyword Pop / badges
+  { archetype: 'keyword-pop', pattern: /\bkeyword|\bpop\b|\bbadge\b|\btarget\b|\bpill\b|\bhighlight\s*tag\b/i, reason: 'prompt mentions keyword pops or badge' },
+  // Lower thirds / speaker bar
+  { archetype: 'lower-third', pattern: /lower[- ]third|\bname bar\b|\btitle bar\b|\bspeaker\b|\bintro\s*card\b/i, reason: 'prompt asks for a lower third' },
+  // Grid / cards / features
+  { archetype: 'icon-cards', pattern: /\bicon|\bcards?\b|\bfeatures?\b|\bgrid\b|\bbenefits?\b/i, reason: 'prompt asks for icon cards' },
+  // Step card / workflow roadmap
+  { archetype: 'step-card', pattern: /\bstep\b|\bprocess\b|\bworkflow\b|\broadmap\b|\bhow[- ]it[- ]works\b/i, reason: 'prompt describes steps' },
+  // Outro / CTA
+  { archetype: 'end-card', pattern: /\bend card\b|\bcta\b|\bsubscribe\b|\blogo outro\b|\boutro\b|\bvisit\b|\bcontact\b/i, reason: 'prompt asks for an end card or CTA' },
+  // Captions / subtitles
+  { archetype: 'caption-track', pattern: /\bcaption|\bsubtitle|\bsub-?title\b|\bvoiceover\s*sync\b/i, reason: 'prompt asks for captions' },
+  // Metrics / counters
+  { archetype: 'number-counter', pattern: /\bcounter|\bcount[- ]?up|\bpercent|\b\d+%\b|\bmetrics?\b|\bstats?\b|\bsavings?\b/i, reason: 'prompt asks for a counter or metric' },
+  // Whip / speed wipe transition
+  { archetype: 'whip-transition', pattern: /\bwhip|\bswipe|\btransition\b|\bspeed\s*blur\b/i, reason: 'prompt asks for a whip transition' },
+  // Glow sweep / shimmer / celebration / announcement / hero reveal
+  { archetype: 'glow-sweep', pattern: /\bglow|\bsweep|\bshine\b|\bshimmer\b|\bbirthday\b|\bcelebrat|\banniversary|\bcongratulat|\bparty|\bannounc|\breveal|\bhero\s*title\b|\btitle\s*card\b/i, reason: 'prompt asks for glow, celebration, or title reveal' }
 ];
 
 /** Rules-first classifier — deterministic, no tokens spent. */
@@ -146,24 +158,56 @@ export function routeArchetype(prompt: string, itemCount: number): RoutedArchety
   return { archetype: 'custom', confidence: 0.4, reason: 'no template matched multi-item layout' };
 }
 
-/** Split a "TEXT: A / B / C" section into items; fall back to quoted text. */
-export function extractTextItems(prompt: string): string[] {
+/** Format text contextually depending on the archetype */
+export function formatTextByContext(text: string, archetype?: Archetype): string {
+  if (!text) return '';
+  const trimmed = text.trim();
+  if (!trimmed) return '';
+
+  switch (archetype) {
+    case 'text-slam':
+    case 'glow-sweep':
+    case 'keyword-pop':
+      // High-impact titles and badges look far crisper in uppercase
+      return trimmed.toUpperCase();
+    case 'lower-third':
+    case 'step-card':
+    case 'strike-checklist':
+      // Title Case for names, steps, checklists
+      return trimmed.replace(/\b([a-z])/g, (_, char) => char.toUpperCase());
+    case 'caption-track':
+      // Sentence case for subtitle pill / voiceover
+      return trimmed.charAt(0).toUpperCase() + trimmed.slice(1);
+    default:
+      // If all lowercase, title-case it; otherwise preserve author's casing
+      if (trimmed === trimmed.toLowerCase()) {
+        return trimmed.replace(/\b([a-z])/g, (_, char) => char.toUpperCase());
+      }
+      return trimmed;
+  }
+}
+
+/** Split a "TEXT: A / B / C" section into items; fall back to quoted text or freeform. */
+export function extractTextItems(prompt: string, archetype?: Archetype): string[] {
   const textSection = prompt.match(/TEXT:\s*([\s\S]*?)\s*\/\s*(?:STYLE|BEATS|OUTPUT|SHOT)\b/is);
   if (textSection) {
     const parts = textSection[1]
       .split(/\s*\/\s*/)
       .map((s) => s.trim())
       .filter(Boolean);
-    if (parts.length) return parts;
+    if (parts.length) return parts.map(p => formatTextByContext(p, archetype));
   }
-  const quoted = prompt.match(/"([^"]+)"|“([^”]+)”/);
-  if (quoted) return [(quoted[1] || quoted[2]).trim()];
+  const quoted = prompt.match(/"([^"]+)"|“([^”]+)”|'([^']+)'|‘([^’]+)’/);
+  if (quoted) {
+    const raw = (quoted[1] || quoted[2] || quoted[3] || quoted[4]).trim();
+    return [formatTextByContext(raw, archetype)];
+  }
 
   // Free-form: 'overlay text animates in Happy Birthday' → 'Happy Birthday'
   const phrase = prompt.match(
-    /(?:overlay\s+text|on-?screen\s+text|text)\s*(?:animates?\s+in|reads?|says?|shows?|:)?\s*([A-Z][\w'’,-]*(?:\s+[A-Z][\w'’,-]*){0,4})/
+    /(?:overlay\s+text|on-?screen\s+text|text)\s*(?:animates?\s+in|reads?|says?|shows?|:)?\s*([a-zA-Z][\w'’,-]*(?:\s+[a-zA-Z][\w'’,-]*){0,4})/i
   );
-  if (phrase) return [phrase[1].trim()];
+  if (phrase) return [formatTextByContext(phrase[1].trim(), archetype)];
   return [];
 }
 
@@ -225,18 +269,24 @@ export function buildTemplateParams(args: {
   brandColors?: Record<string, string>;
 }): TemplateParams {
   const { prompt, duration, archetype, brandColors } = args;
-  const items = extractTextItems(prompt);
+  const items = extractTextItems(prompt, archetype);
   const { starts, strikeStarts, fadeOutAt } = parseBeats(prompt, items);
 
   const isChecklist = archetype === 'strike-checklist';
-  const accent = brandColors?.primary || '#FF0000';
+  const palette = resolvePalette(prompt, brandColors);
+  const accent = palette.primary;
 
-  // text-slam animates word by word: split a single item into words.
+  // text-slam animates word by word only when there are multiple words AND we have > 3 words,
+  // or if user specifically asked for word-by-word/slam. A 2-word phrase like "HAPPY BIRTHDAY"
+  // should stay as a solid unit unless it's a longer sentence.
   let effectiveItems = items;
   let wordSplit = false;
-  if (archetype === 'text-slam' && items.length === 1 && items[0].split(/\s+/).length > 1) {
-    effectiveItems = items[0].split(/\s+/);
-    wordSplit = true;
+  if (archetype === 'text-slam' && items.length === 1) {
+    const words = items[0].split(/\s+/).filter(Boolean);
+    if (words.length > 3 || /\bword[- ]by[- ]word\b|\bevery\s+word\b/i.test(prompt)) {
+      effectiveItems = words;
+      wordSplit = true;
+    }
   }
 
   const fontSize = effectiveItems.length > 3 ? 64 : 88;

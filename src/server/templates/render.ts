@@ -59,8 +59,8 @@ function baseStyle(archetype: Archetype, params: TemplateParams): string {
   const isCaption = archetype === 'caption-track';
 
   const rootLayout = isLowerThird
-    ? `display: flex; flex-direction: column; align-items: flex-start; justify-content: flex-end; padding-bottom: 160px;`
-    : `display: flex; flex-direction: column; align-items: flex-start; justify-content: center;`;
+    ? `display: flex; flex-direction: column; align-items: flex-start; justify-content: flex-end; padding-bottom: 160px; padding-left: 100px;`
+    : `display: flex; flex-direction: column; align-items: center; justify-content: center;`;
 
   return `    :root {
       --text-color: ${params.textColor};
@@ -69,16 +69,16 @@ function baseStyle(archetype: Archetype, params: TemplateParams): string {
       --gap: ${params.gap}px;
       --shadow: ${params.readability ? params.shadow : 'none'};
       --strike-thickness: ${params.strikeThickness}px;
-      --font-family: "Inter", "Helvetica Neue", Arial, sans-serif;
+      --font-family: "Montserrat", "Inter", -apple-system, sans-serif;
     }
     html, body { margin: 0; padding: 0; width: 1920px; height: 1080px; background: transparent; overflow: hidden; }
     body { font-family: var(--font-family); }
-    #root { width: 1920px; height: 1080px; box-sizing: border-box; padding-left: 10%; padding-right: 10%; ${rootLayout} }
+    #root { width: 1920px; height: 1080px; box-sizing: border-box; padding: 5%; ${rootLayout} }
     .list {
       display: flex;
       flex-direction: ${isHorizontal ? 'row' : 'column'};
-      align-items: ${isHorizontal ? 'center' : 'flex-start'};
-      justify-content: ${isHorizontal ? 'center' : 'flex-start'};
+      align-items: center;
+      justify-content: center;
       gap: var(--gap);
       max-width: 100%;
       ${isHorizontal ? 'width: auto;' : ''}
@@ -88,6 +88,7 @@ function baseStyle(archetype: Archetype, params: TemplateParams): string {
       position: relative;
       display: inline-flex;
       align-items: center;
+      justify-content: center;
       color: var(--text-color);
       font-size: var(--font-size);
       font-weight: 800;
@@ -97,7 +98,7 @@ function baseStyle(archetype: Archetype, params: TemplateParams): string {
       will-change: transform, opacity;
       white-space: nowrap;
     }
-    ${SHADOW_ARCHETYPES.includes(archetype) ? '.item { text-shadow: var(--shadow); }' : ''}
+    ${SHADOW_ARCHETYPES.includes(archetype) ? '.item { text-shadow: 0 10px 30px rgba(0,0,0,0.85), 0 2px 8px rgba(0,0,0,0.6); }' : ''}
     .strike {
       position: absolute;
       left: 0;
@@ -109,14 +110,14 @@ function baseStyle(archetype: Archetype, params: TemplateParams): string {
       border-radius: calc(var(--strike-thickness) / 2);
       pointer-events: none;
     }
-    ${archetype === 'keyword-pop' ? '.item { padding: 8px 24px; border-radius: 16px; background: rgba(255,255,255,0.08); }' : ''}
-    ${archetype === 'lower-third' ? '.item { border-left: 12px solid var(--accent-color); padding-left: 28px; font-size: 56px; }' : ''}
-    ${archetype === 'icon-cards' ? '.item { padding: 28px 40px; border-radius: 24px; background: rgba(255,255,255,0.07); font-size: 48px; }' : ''}
-    ${archetype === 'step-card' ? '.item { padding: 20px 32px; border-radius: 20px; background: rgba(255,255,255,0.06); font-size: 52px; }' : ''}
+    ${archetype === 'keyword-pop' ? '.item { padding: 16px 48px; border-radius: 9999px; background: rgba(30, 41, 59, 0.95); border: 2px solid var(--accent-color); box-shadow: 0 15px 40px rgba(0,0,0,0.6); }' : ''}
+    ${archetype === 'lower-third' ? '.item { border-left: 12px solid var(--accent-color); padding: 20px 36px; font-size: 56px; background: rgba(30, 41, 59, 0.95); border-radius: 0 16px 16px 0; }' : ''}
+    ${archetype === 'icon-cards' ? '.item { padding: 32px 48px; border-radius: 24px; background: rgba(30, 41, 59, 0.9); border: 1px solid rgba(255,255,255,0.12); font-size: 48px; box-shadow: 0 20px 40px rgba(0,0,0,0.6); }' : ''}
+    ${archetype === 'step-card' ? '.item { padding: 36px 64px; border-radius: 28px; background: rgba(30, 41, 59, 0.95); border: 1px solid rgba(255,255,255,0.12); font-size: 52px; box-shadow: 0 25px 50px rgba(0,0,0,0.7); }' : ''}
     ${archetype === 'end-card' ? '.list { align-items: center; } .item { font-size: 72px; text-align: center; }' : ''}
-    ${isCaption ? '.item { font-size: 64px; background: rgba(0,0,0,0.55); padding: 12px 28px; border-radius: 12px; }' : ''}
-    ${archetype === 'number-counter' ? '.item { font-size: 120px; font-variant-numeric: tabular-nums; }' : ''}
-    ${archetype === 'glow-sweep' ? '.item { text-shadow: 0 0 24px var(--accent-color); }' : ''}
+    ${isCaption ? '.item { font-size: 52px; background: rgba(15, 23, 42, 0.9); border: 1px solid rgba(255,255,255,0.15); padding: 18px 44px; border-radius: 9999px; box-shadow: 0 15px 40px rgba(0,0,0,0.6); }' : ''}
+    ${archetype === 'number-counter' ? '.item { font-size: 130px; font-weight: 900; font-variant-numeric: tabular-nums; color: var(--accent-color); text-shadow: 0 12px 36px rgba(0,0,0,0.8); }' : ''}
+    ${archetype === 'glow-sweep' ? '.item { font-size: 96px; font-weight: 900; letter-spacing: 0.02em; text-shadow: 0 0 35px var(--accent-color), 0 0 70px var(--accent-color), 0 10px 30px rgba(0,0,0,0.9); }' : ''}
     ${archetype === 'whip-transition' ? '.item { font-size: 96px; }' : ''}`;
 }
 

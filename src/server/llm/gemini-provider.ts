@@ -15,17 +15,30 @@ export function setGenerateLog(fn: ((msg: string) => void) | undefined) {
 export class GeminiProvider implements ILLMProvider {
   name = 'gemini';
   private genAI: GoogleGenerativeAI | null = null;
+  private currentKey: string | null = null;
 
   constructor() {
+    this.ensureClient();
+  }
+
+  private ensureClient(): GoogleGenerativeAI | null {
     const key = process.env.GEMINI_API_KEY?.trim();
-    if (key) {
-      this.genAI = new GoogleGenerativeAI(key);
+    if (!key) {
+      this.genAI = null;
+      this.currentKey = null;
+      return null;
     }
+    if (this.genAI && this.currentKey === key) {
+      return this.genAI;
+    }
+    this.genAI = new GoogleGenerativeAI(key);
+    this.currentKey = key;
+    return this.genAI;
   }
 
   async generate(context: GenerationContext, activeModelOverride?: string): Promise<LLMResponse> {
-    const key = process.env.GEMINI_API_KEY?.trim();
-    if (!key || !this.genAI) {
+    const genAI = this.ensureClient();
+    if (!genAI) {
       throw new Error('No Gemini API key in .env. Please configure GEMINI_API_KEY.');
     }
     const rawActive = activeModelOverride || activeModel();

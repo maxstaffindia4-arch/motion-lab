@@ -11,7 +11,13 @@ import path from 'node:path';
 
 const UI = process.env.MOTION_UI || 'http://127.0.0.1:5173';
 const API = process.env.MOTION_API || 'http://127.0.0.1:3000';
-const FFMPEG = process.env.FFMPEG_PATH || 'C:\\Program Files\\DownloadHelper CoApp\\ffmpeg.exe';
+function resolveBin(envVar: string | undefined, defaultCandidate: string, fallback: string): string {
+  const env = envVar?.replace(/^"|"$/g, '');
+  if (env && fs.existsSync(env)) return env;
+  if (fs.existsSync(defaultCandidate)) return defaultCandidate;
+  return fallback;
+}
+const FFMPEG = resolveBin(process.env.FFMPEG_PATH, 'C:\\Program Files\\DownloadHelper CoApp\\ffmpeg.exe', 'ffmpeg');
 const PROOF = path.resolve('proof-screenshots');
 fs.mkdirSync(PROOF, { recursive: true });
 

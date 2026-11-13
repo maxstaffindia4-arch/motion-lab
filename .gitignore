@@ -24,7 +24,8 @@ test-shot-assets/
 # Worker cache
 .cache/
 
-# SQLite temp
+# SQLite
+*.sqlite
 *.sqlite-shm
 *.sqlite-wal
 

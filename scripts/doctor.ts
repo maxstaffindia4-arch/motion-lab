@@ -51,9 +51,9 @@ async function runDoctor() {
   const modelName = process.env.GEMINI_MODEL || 'gemini-3.5-flash';
 
   if (!geminiKey) {
-    console.error('[FAIL] GEMINI_API_KEY is missing or empty in .env.');
-    console.error('       Please add your Gemini API key: GEMINI_API_KEY=AIzaSy...');
-    hasErrors = true;
+    console.log('[INFO] GEMINI_API_KEY is not set in .env.');
+    console.log('       - Offline Template Mode: READY (all 11 built-in archetypes work 100% offline).');
+    console.log('       - AI Synthesis Mode: Add GEMINI_API_KEY=AIzaSy... to enable LLM generation.');
   } else {
     console.log(`[INFO] Testing live Gemini API connection (Model: ${modelName})...`);
     try {
