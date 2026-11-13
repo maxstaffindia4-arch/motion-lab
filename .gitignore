@@ -1,21 +1,40 @@
-# Environment
-.env
-.env.local
-
-# Node
+# Dependencies
 node_modules/
-dist/
-dist-client/
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
 
-# Storage & Renders
-*.sqlite
-*.sqlite-journal
-out/
-shots/
-renders/
+# Environment
+.env*
+!.env.example
+
+# Build / dist
+dist/
+*.tgz
+
+# Shot-generated assets (per-shot dirs are ephemeral)
+shots/**/index.html
+shots/**/params.json
+shots/**/gsap.min.js
+
+# Test results and screenshots
+test-results/
+test-shot-assets/
+
+# Worker cache
 .cache/
 
-# System
-.DS_Store
-Thumbs.db
+# SQLite temp
+*.sqlite-shm
+*.sqlite-wal
 
+# IDE / editor
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Freebuff / Cloudflare
+.env.local
+.dev.vars
+.next/
