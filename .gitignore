@@ -1,6 +1,5 @@
 # Dependencies
 node_modules/
-package-lock.json
 yarn.lock
 pnpm-lock.yaml
 
@@ -12,14 +11,18 @@ pnpm-lock.yaml
 dist/
 *.tgz
 
-# Shot-generated assets (per-shot dirs are ephemeral)
-shots/**/index.html
-shots/**/params.json
-shots/**/gsap.min.js
+# Logs
+*.log
 
-# Test results and screenshots
+# Proof screenshots & test artifacts
+proof-screenshots/
 test-results/
 test-shot-assets/
+test-render.*
+
+# Projects & shots data
+projects/
+shots/
 
 # Worker cache
 .cache/

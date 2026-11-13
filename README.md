@@ -35,12 +35,12 @@ PORT=3000
 HOST=127.0.0.1
 LLM_PROVIDER=gemini
 GEMINI_API_KEY=your_gemini_key_here
-GEMINI_MODEL=gemini-2.5-flash
+GEMINI_MODEL=gemini-3.5-flash
 LLM_MAX_RPM=15
 ANTHROPIC_API_KEY=
 ANTHROPIC_MODEL=claude-3-7-sonnet-20250219
 AGENT_CLI=antigravity
-AGENT_BIN="C:\\Users\\Max\\AppData\\Local\\Programs\\Antigravity IDE\\bin\\antigravity-ide.cmd"
+AGENT_BIN="<path-to-agent-binary>"
 AGENT_CMD_TEMPLATE="{bin} chat --mode agent {prompt}"
 AGENT_MODEL=inherit
 AGENT_TIMEOUT_SEC=180
@@ -51,7 +51,7 @@ AGENT_TIMEOUT_SEC=180
 ## 3. Verified Antigravity Agent Command
 
 Verified against Antigravity IDE (`1.107.0`):
-- **Executable**: `C:\Users\Max\AppData\Local\Programs\Antigravity IDE\bin\antigravity-ide.cmd`
+- **Executable**: `<path-to-agent-binary>` (e.g. `antigravity-ide.cmd`)
 - **Headless Chat Command**:
   ```powershell
   antigravity-ide chat --mode agent "Read TASK.md, update comp.html and params.json, run hyperframes lint until clean, then stop."
@@ -80,6 +80,14 @@ npm run build
 npm start
 ```
 Open **`http://127.0.0.1:3000`** in your browser.
+
+### Verification Scripts
+The following verification scripts are available via `npm run`:
+- `npm run e2e`: Runs end-to-end integration proof (`scripts/e2e-proof.ts`). Creates test compositions and renders output video.
+- `npm run determinism`: Verifies frame-by-frame seeking and rendering determinism (`scripts/determinism-check.ts`).
+- `npm run acceptance`: Runs the full acceptance test suite (`scripts/run-acceptance-test.ts`).
+- `npm run proof:render`: Renders proof test compositions (`scripts/render-proof.ts`). Note: requires server and FFmpeg.
+- `npm run check:render-ui`: Validates UI rendering and scrub controls (`scripts/render-ui-check.ts`). Note: requires both backend server and Vite dev server running, and expects the video created by `npm run e2e`.
 
 ---
 
