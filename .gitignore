@@ -1,0 +1,21 @@
+# Environment
+.env
+.env.local
+
+# Node
+node_modules/
+dist/
+dist-client/
+
+# Storage & Renders
+*.sqlite
+*.sqlite-journal
+out/
+shots/
+renders/
+.cache/
+
+# System
+.DS_Store
+Thumbs.db
+

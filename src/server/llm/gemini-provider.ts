@@ -1,0 +1,163 @@
+import { GoogleGenerativeAI } from '@google/generative-ai';
+import { ILLMProvider, GenerationContext, LLMResponse } from './provider-interface.js';
+import { LLMGenerationOutput, ParamFieldSchema } from '../../common/types.js';
+import { buildSystemPrompt, buildUserPrompt } from './prompt-builder.js';
+import { globalRateLimiter } from './rate-limiter.js';
+import { isDailyQuota429 } from './rate-limiter.js';
+import { activeModel } from './model-resolver.js';
+
+let generateLog: ((msg: string) => void) | undefined = undefined;
+export { generateLog };
+export function setGenerateLog(fn: ((msg: string) => void) | undefined) {
+  generateLog = fn;
+}
+
+export class GeminiProvider implements ILLMProvider {
+  name = 'gemini';
+  private genAI: GoogleGenerativeAI | null = null;
+
+  constructor() {
+    const key = process.env.GEMINI_API_KEY?.trim();
+    if (key) {
+      this.genAI = new GoogleGenerativeAI(key);
+    }
+  }
+
+  async generate(context: GenerationContext, activeModelOverride?: string): Promise<LLMResponse> {
+    const key = process.env.GEMINI_API_KEY?.trim();
+    if (!key || !this.genAI) {
+      throw new Error('No Gemini API key in .env. Please configure GEMINI_API_KEY.');
+    }
+    const rawActive = activeModelOverride || activeModel();
+    const modelFqdn = rawActive.startsWith('models/')
+      ? rawActive
+      : ('models/' + rawActive.replace(/^models\//, ''));
+
+    const log = generateLog;
+    log?.(`[llm] (gemini: ${modelFqdn}) begin build for Shot ${context.shotNumber || 'untitled'}.`);
+
+    const systemPrompt = buildSystemPrompt(context.brandKit);
+    let userPrompt = buildUserPrompt(context);
+    const parts: any[] = [{ text: userPrompt }];
+    for (const attachment of context.attachments || []) {
+      parts.push({ inlineData: { mimeType: attachment.mimeType, data: attachment.data } });
+    }
+
+    return globalRateLimiter.execute(async () => {
+      let attempts = 0;
+      let lastError: Error | null = null;
+
+      while (attempts < 3) {
+        attempts++;
+        try {
+          log?.(`[llm] (gemini: ${modelFqdn}) generateContent request to ${modelFqdn}.`);
+          const model = this.genAI!.getGenerativeModel({
+            model: modelFqdn,
+            systemInstruction: systemPrompt,
+            generationConfig: { temperature: 0.2 }
+          });
+
+          const requestStartedAt = Date.now();
+          const response = await model.generateContent(parts as any);
+          const latency = Date.now() - requestStartedAt;
+          const text = response.response.text();
+
+          const parsed = this.parseDelimitedOutput(text);
+          const usage = response.response.usageMetadata;
+          const promptTokens = usage?.promptTokenCount || 0;
+          const completionTokens = usage?.candidatesTokenCount || 0;
+          const totalTokens = usage?.totalTokenCount || (promptTokens + completionTokens);
+          const cost = (promptTokens * 0.0000001) + (completionTokens * 0.0000004);
+
+          const result: LLMResponse = {
+            output: parsed,
+            provider: 'gemini',
+            model: modelFqdn,
+            promptTokens,
+            completionTokens,
+            totalTokens,
+            estimatedCostUsd: Number(cost.toFixed(6)),
+            latencyMs: latency
+          };
+          log?.(`[llm] (gemini: ${modelFqdn}) result: OK ${result.totalTokens} tokens, ${(latency).toFixed(0)}ms latency.`);
+          return result;
+        } catch (err: any) {
+          lastError = err;
+          const msg = err?.message || String(err);
+          if (isDailyQuota429(err)) {
+            log?.(`[llm] (gemini: ${modelFqdn}) NOT retrying: daily quota 429: ${msg}`);
+            throw err;
+          }
+          if (!msg.toLowerCase().includes('429') && !msg.toLowerCase().includes('quota')) {
+            userPrompt += `\n\n[PARSING ERROR on previous attempt ${attempts}/3]: ${msg}. Please strictly output the four sections wrapped in <comp>...</comp>, <params>...</params>, <schema>...</schema>, and <notes>...</notes>.`;
+            parts[0] = { text: userPrompt };
+          } else {
+            log?.(`[llm] (gemini: ${modelFqdn}) retry not attempted for non-parse error: ${msg}`);
+          }
+        }
+      }
+
+      throw lastError || new Error('Failed to generate valid composition from Gemini after 3 attempts.');
+    });
+  }
+
+  async edit(context: GenerationContext, activeModelOverride?: string): Promise<LLMResponse> {
+    return this.generate(context, activeModelOverride);
+  }
+
+  private parseDelimitedOutput(rawText: string): LLMGenerationOutput {
+    const extractTag = (tag: string): string => {
+      const regex = new RegExp(`<${tag}>([\\s\\S]*?)<\\/${tag}>`, 'i');
+      const match = rawText.match(regex);
+      if (match && match[1]) {
+        return match[1].trim();
+      }
+      return '';
+    };
+
+    let compHtml = extractTag('comp');
+    let paramsRaw = extractTag('params');
+    let schemaRaw = extractTag('schema');
+    const notes = extractTag('notes') || 'Generated by Gemini';
+
+    // Strip accidental code block fences if the model wrapped content in ```html or ```json
+    compHtml = compHtml.replace(/^```(?:html)?\s*/i, '').replace(/\s*```$/i, '').trim();
+    paramsRaw = paramsRaw.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/i, '').trim();
+    schemaRaw = schemaRaw.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/i, '').trim();
+
+    if (!compHtml) {
+      throw new Error('Missing <comp>...</comp> section in LLM response.');
+    }
+    if (!compHtml.includes('<!doctype') && !compHtml.includes('<html') && !compHtml.includes('data-composition-id')) {
+      throw new Error('<comp> section does not contain a valid HTML document with data-composition-id.');
+    }
+
+    let params: Record<string, any> = {};
+    if (paramsRaw) {
+      try {
+        params = JSON.parse(paramsRaw);
+      } catch (e: any) {
+        throw new Error(`Failed to parse <params> JSON: ${e.message}`);
+      }
+    }
+
+    let paramsSchema: ParamFieldSchema[] = [];
+    if (schemaRaw) {
+      try {
+        const parsed = JSON.parse(schemaRaw);
+        if (Array.isArray(parsed)) {
+          paramsSchema = parsed;
+        }
+      } catch (e: any) {
+        throw new Error(`Failed to parse <schema> JSON: ${e.message}`);
+      }
+    }
+
+    return {
+      compHtml,
+      params,
+      paramsSchema,
+      notes
+    };
+  }
+}
