@@ -156,42 +156,86 @@ export const TabsPanel: React.FC<TabsPanelProps> = ({
   const needsReview = shot?.status === 'needs-review' || lintErrors.length > 0;
 
   return (
-    <aside className="w-[480px] bg-[#0F172A] border-l border-[#243247] flex flex-col h-full select-none">
+    <aside
+      className="bg-[#0F172A] border-l border-[#243247] flex flex-col h-full select-none shrink-0 min-w-0"
+      style={{ width: 'clamp(320px, 26vw, 420px)' }}
+    >
       {/* Tabs Header */}
-      <div className="flex border-b border-[#243247] bg-[#111827] text-xs font-semibold overflow-x-auto">
-        <button onClick={() => setActiveTab('prompt')} className={tabButtonClass(activeTab === 'prompt')}>
+      <div role="tablist" aria-label="Shot editor panels" className="flex border-b border-[#243247] bg-[#111827] text-xs font-semibold overflow-x-auto">
+        <button
+          role="tab"
+          aria-selected={activeTab === 'prompt'}
+          aria-controls="tab-panel-prompt"
+          onClick={() => setActiveTab('prompt')}
+          className={`${tabButtonClass(activeTab === 'prompt')} shrink-0`}
+        >
           <Sparkles className="w-3.5 h-3.5 text-amber-400" />
           <span>Prompt</span>
         </button>
 
-        <button onClick={() => setActiveTab('context')} className={tabButtonClass(activeTab === 'context')}>
+        <button
+          role="tab"
+          aria-selected={activeTab === 'context'}
+          aria-controls="tab-panel-context"
+          onClick={() => setActiveTab('context')}
+          className={`${tabButtonClass(activeTab === 'context')} shrink-0`}
+        >
           <FileText className="w-3.5 h-3.5 text-blue-400" />
           <span>Context</span>
         </button>
 
-        <button onClick={() => setActiveTab('params')} className={tabButtonClass(activeTab === 'params')}>
+        <button
+          role="tab"
+          aria-selected={activeTab === 'params'}
+          aria-controls="tab-panel-params"
+          onClick={() => setActiveTab('params')}
+          className={`${tabButtonClass(activeTab === 'params')} shrink-0`}
+        >
           <Sliders className="w-3.5 h-3.5 text-emerald-400" />
           <span>Params</span>
         </button>
 
-        <button onClick={() => setActiveTab('code')} className={tabButtonClass(activeTab === 'code')}>
+        <button
+          role="tab"
+          aria-selected={activeTab === 'code'}
+          aria-controls="tab-panel-code"
+          onClick={() => setActiveTab('code')}
+          className={`${tabButtonClass(activeTab === 'code')} shrink-0`}
+        >
           <Code2 className="w-3.5 h-3.5 text-purple-400" />
           <span>Code</span>
         </button>
 
-        <button onClick={() => setActiveTab('versions')} className={tabButtonClass(activeTab === 'versions')}>
+        <button
+          role="tab"
+          aria-selected={activeTab === 'versions'}
+          aria-controls="tab-panel-versions"
+          onClick={() => setActiveTab('versions')}
+          className={`${tabButtonClass(activeTab === 'versions')} shrink-0`}
+        >
           <History className="w-3.5 h-3.5 text-cyan-400" />
           <span>Versions ({versions.length})</span>
         </button>
 
-        <button onClick={() => setActiveTab('log')} className={tabButtonClass(activeTab === 'log')}>
+        <button
+          role="tab"
+          aria-selected={activeTab === 'log'}
+          aria-controls="tab-panel-log"
+          onClick={() => setActiveTab('log')}
+          className={`${tabButtonClass(activeTab === 'log')} shrink-0`}
+        >
           <Terminal className="w-3.5 h-3.5 text-slate-400" />
           <span>Log</span>
         </button>
       </div>
 
       {/* Tab Contents */}
-      <div className="flex-1 overflow-y-auto p-4">
+      <div
+        role="tabpanel"
+        id={`tab-panel-${activeTab}`}
+        tabIndex={0}
+        className="flex-1 overflow-y-auto p-4 min-h-0"
+      >
         {activeTab === 'prompt' && (
           <div className="space-y-4">
             {needsReview && (

@@ -45,7 +45,10 @@ export const ProjectTree: React.FC<ProjectTreeProps> = ({
   };
 
   return (
-    <aside className="w-80 bg-[#0F172A] border-r border-[#243247] flex flex-col h-full select-none">
+    <aside
+      className="bg-[#0F172A] border-r border-[#243247] flex flex-col h-full select-none shrink-0 min-w-0"
+      style={{ width: 'clamp(200px, 16vw, 260px)' }}
+    >
       {/* Project Header */}
       <div className="p-3 border-b border-[#243247] bg-[#161F30]">
         <div className="flex items-center justify-between">
@@ -64,6 +67,7 @@ export const ProjectTree: React.FC<ProjectTreeProps> = ({
           <button
             onClick={onAddVideo}
             title="Create New Video"
+            aria-label="Create New Video"
             className="text-xs text-blue-400 hover:text-blue-300 flex items-center space-x-1"
           >
             <Plus className="w-3.5 h-3.5" />
@@ -88,6 +92,8 @@ export const ProjectTree: React.FC<ProjectTreeProps> = ({
         <span className="text-[11px] font-bold text-[#94A3B8] uppercase">Shots ({shots.length})</span>
         <button
           onClick={onAddShot}
+          title="Create New Shot"
+          aria-label="Create New Shot"
           className="flex items-center space-x-1 px-2 py-1 rounded bg-[#C92A2A]/20 hover:bg-[#C92A2A]/30 text-[#F87171] hover:text-white border border-[#C92A2A]/40 text-xs font-semibold transition-colors"
         >
           <Plus className="w-3 h-3" />
@@ -96,7 +102,7 @@ export const ProjectTree: React.FC<ProjectTreeProps> = ({
       </div>
 
       {/* Shots List */}
-      <div className="flex-1 overflow-y-auto p-2 space-y-1.5">
+      <div role="list" className="flex-1 overflow-y-auto p-2 space-y-1.5">
         {shots.length === 0 ? (
           <div className="p-4 text-center text-xs text-[#64748B]">
             No shots in this video. Click "+ New Shot" to begin.
@@ -107,6 +113,8 @@ export const ProjectTree: React.FC<ProjectTreeProps> = ({
             return (
               <div
                 key={shot.id}
+                role="listitem"
+                aria-current={isSelected ? 'true' : undefined}
                 data-testid={`shot-${shot.shotNumber}`}
                 onClick={() => onSelectShot(shot.id)}
                 className={`p-2.5 rounded-lg border transition-all cursor-pointer ${

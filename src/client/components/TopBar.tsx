@@ -56,9 +56,9 @@ export const TopBar: React.FC<TopBarProps> = ({
     setSettingsOpen(false);
   };
   return (
-    <header className="h-14 bg-[#111827] border-b border-[#243247] px-4 flex items-center justify-between select-none">
+    <header className="h-14 bg-[#111827] border-b border-[#243247] px-4 flex items-center justify-between select-none min-w-0">
       {/* Brand & Title */}
-      <div className="flex items-center space-x-3">
+      <div className="flex items-center space-x-3 shrink-0">
         <div className="w-8 h-8 rounded-lg bg-[#C92A2A] flex items-center justify-center text-white font-black text-sm shadow-[0_0_15px_rgba(201,42,42,0.5)]">
           SI
         </div>
@@ -69,15 +69,18 @@ export const TopBar: React.FC<TopBarProps> = ({
       </div>
 
       {/* Free Tier Safeguard Banner */}
-      <div className="hidden lg:flex items-center space-x-2 bg-[#1E293B] border border-amber-500/30 text-amber-300 text-xs px-3 py-1 rounded-full">
+      <div
+        title="Free-tier provider safeguards active. Real API metrics only."
+        className="hidden lg:flex items-center space-x-2 bg-[#1E293B] border border-amber-500/30 text-amber-300 text-xs px-3 py-1 rounded-full truncate min-w-0"
+      >
         <ShieldAlert className="w-3.5 h-3.5 flex-shrink-0" />
-        <span>Free-tier provider safeguards active. Real API metrics only.</span>
+        <span className="truncate">Free-tier provider safeguards active. Real API metrics only.</span>
       </div>
 
       {/* Actions & Counters */}
-      <div className="flex items-center space-x-3">
+      <div className="flex items-center space-x-3 overflow-x-auto min-w-0 py-1">
         {/* Honest Session Stats */}
-        <div className="hidden xl:flex items-center space-x-3 text-xs bg-[#0F172A] px-3 py-1.5 rounded-md border border-[#243247] text-[#94A3B8]">
+        <div className="hidden xl:flex items-center space-x-3 text-xs bg-[#0F172A] px-3 py-1.5 rounded-md border border-[#243247] text-[#94A3B8] shrink-0">
           <div className="flex items-center space-x-1">
             <Cpu className="w-3.5 h-3.5 text-blue-400" />
             <span>Calls: <strong className="text-white">{sessionStats.totalCalls}</strong></span>
@@ -88,12 +91,17 @@ export const TopBar: React.FC<TopBarProps> = ({
           <span>Cost: <strong className="text-emerald-400">{sessionStats.totalCostUsd === 0 ? 'Free Tier ($0)' : `$${sessionStats.totalCostUsd.toFixed(4)}`}</strong></span>
         </div>
 
-        <button onClick={openSettings} title="Global settings" className="p-1.5 rounded bg-[#0F172A] border border-[#243247] text-[#94A3B8] hover:text-white">
+        <button
+          onClick={openSettings}
+          title="Global settings"
+          aria-label="Global settings"
+          className="p-1.5 rounded bg-[#0F172A] border border-[#243247] text-[#94A3B8] hover:text-white shrink-0"
+        >
           <Settings className="w-3.5 h-3.5" />
         </button>
 
         {/* Provider Selector */}
-        <div className="flex items-center space-x-1.5 bg-[#0F172A] border border-[#243247] rounded-md px-2 py-1 text-xs">
+        <div className="flex items-center space-x-1.5 bg-[#0F172A] border border-[#243247] rounded-md px-2 py-1 text-xs shrink-0">
           <span className="text-[#64748B]">LLM:</span>
           <select
             value={selectedProvider}
@@ -109,7 +117,7 @@ export const TopBar: React.FC<TopBarProps> = ({
         </div>
 
         {/* Model Dropdown (populated from ListModels) + per-model Test */}
-        <div className="flex items-center space-x-1 bg-[#0F172A] border border-[#243247] rounded-md px-2 py-1 text-xs">
+        <div className="flex items-center space-x-1 bg-[#0F172A] border border-[#243247] rounded-md px-2 py-1 text-xs shrink-0">
           <span className="text-[#64748B]">Model:</span>
           <select
             data-testid="model-select"
@@ -131,6 +139,7 @@ export const TopBar: React.FC<TopBarProps> = ({
             onClick={() => onTestModel(currentModel)}
             disabled={isTestingLlm}
             title={`Send a live PONG request to ${currentModel}`}
+            aria-label={`Send a live PONG request to ${currentModel}`}
             className="px-1.5 py-0.5 rounded bg-cyan-950/70 hover:bg-cyan-900 border border-cyan-700/60 text-cyan-300 font-bold disabled:opacity-50"
           >
             Test
@@ -142,7 +151,8 @@ export const TopBar: React.FC<TopBarProps> = ({
           data-testid="simulate-429"
           onClick={() => onSimulate429('rate-limit')}
           title="Simulate a rate-limit 429 (short backoff, retried)"
-          className="px-2 py-1.5 bg-[#1E293B] hover:bg-[#2A374D] border border-amber-600/50 text-amber-300 rounded-md text-xs font-semibold transition-colors"
+          aria-label="Simulate rate-limit 429"
+          className="px-2 py-1.5 bg-[#1E293B] hover:bg-[#2A374D] border border-amber-600/50 text-amber-300 rounded-md text-xs font-semibold transition-colors shrink-0"
         >
           Sim 429
         </button>
@@ -150,7 +160,8 @@ export const TopBar: React.FC<TopBarProps> = ({
           data-testid="simulate-429-quota"
           onClick={() => onSimulate429('quota')}
           title="Simulate a daily-quota 429 (never retried, no repair)"
-          className="px-2 py-1.5 bg-[#1E293B] hover:bg-[#2A374D] border border-rose-600/50 text-rose-300 rounded-md text-xs font-semibold transition-colors"
+          aria-label="Simulate daily-quota 429"
+          className="px-2 py-1.5 bg-[#1E293B] hover:bg-[#2A374D] border border-rose-600/50 text-rose-300 rounded-md text-xs font-semibold transition-colors shrink-0"
         >
           Sim daily 429
         </button>
@@ -160,7 +171,8 @@ export const TopBar: React.FC<TopBarProps> = ({
           onClick={onTestConnection}
           disabled={isTestingLlm}
           title="Run live diagnostic call against configured LLM"
-          className="flex items-center space-x-1 px-2.5 py-1.5 bg-[#1E293B] hover:bg-[#2A374D] border border-cyan-500/40 text-cyan-300 hover:text-white rounded-md text-xs font-semibold transition-colors disabled:opacity-50"
+          aria-label="Run live diagnostic call against configured LLM"
+          className="flex items-center space-x-1 px-2.5 py-1.5 bg-[#1E293B] hover:bg-[#2A374D] border border-cyan-500/40 text-cyan-300 hover:text-white rounded-md text-xs font-semibold transition-colors disabled:opacity-50 shrink-0"
         >
           {isTestingLlm ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Activity className="w-3.5 h-3.5" />}
           <span className="hidden md:inline">Test Connection</span>
@@ -170,7 +182,8 @@ export const TopBar: React.FC<TopBarProps> = ({
         <button
           onClick={onLoadDemoShots}
           title="Load 4 acceptance-test starter shots with empty versions"
-          className="flex items-center space-x-1.5 px-3 py-1.5 bg-[#1E293B] hover:bg-[#2A374D] border border-purple-500/40 text-purple-300 hover:text-white rounded-md text-xs font-semibold transition-colors"
+          aria-label="Load demo acceptance-test shots"
+          className="flex items-center space-x-1.5 px-3 py-1.5 bg-[#1E293B] hover:bg-[#2A374D] border border-purple-500/40 text-purple-300 hover:text-white rounded-md text-xs font-semibold transition-colors shrink-0"
         >
           <Sparkles className="w-3.5 h-3.5" />
           <span className="hidden sm:inline">Load Demo Shots</span>
@@ -180,17 +193,19 @@ export const TopBar: React.FC<TopBarProps> = ({
         <button
           onClick={onOpenBulkImport}
           title="Import Production Sheet JSON"
-          className="flex items-center space-x-1.5 px-3 py-1.5 bg-[#1E293B] hover:bg-[#2A374D] border border-[#334155] rounded-md text-xs font-semibold text-[#CBD5E1] transition-colors"
+          aria-label="Import Production Sheet JSON"
+          className="flex items-center space-x-1.5 px-3 py-1.5 bg-[#1E293B] hover:bg-[#2A374D] border border-[#334155] rounded-md text-xs font-semibold text-[#CBD5E1] transition-colors shrink-0"
         >
           <FileSpreadsheet className="w-3.5 h-3.5 text-blue-400" />
           <span className="hidden sm:inline">Import Sheet</span>
         </button>
 
         {/* Export Buttons */}
-        <div className="flex items-center space-x-1">
+        <div className="flex items-center space-x-1 shrink-0">
           <button
             onClick={onExportTimeline}
             title="Export Video Timeline JSON"
+            aria-label="Export Video Timeline JSON"
             className="p-1.5 bg-[#1E293B] hover:bg-[#2A374D] border border-[#334155] rounded-md text-xs text-[#CBD5E1]"
           >
             <Layers className="w-3.5 h-3.5 text-emerald-400" />
@@ -198,6 +213,7 @@ export const TopBar: React.FC<TopBarProps> = ({
           <button
             onClick={onExportZip}
             title="Download Video Renders ZIP"
+            aria-label="Download Video Renders ZIP"
             className="p-1.5 bg-[#1E293B] hover:bg-[#2A374D] border border-[#334155] rounded-md text-xs text-[#CBD5E1]"
           >
             <Download className="w-3.5 h-3.5 text-cyan-400" />
@@ -208,7 +224,8 @@ export const TopBar: React.FC<TopBarProps> = ({
         <button
           onClick={onRenderShot}
           disabled={isRendering || !currentShot?.currentVersionId}
-          className="px-3.5 py-1.5 bg-[#C92A2A] hover:bg-[#A61E1E] disabled:bg-slate-700 text-white font-bold rounded-md text-xs transition-colors flex items-center space-x-1.5 shadow-md"
+          aria-label="Render Shot"
+          className="px-3.5 py-1.5 bg-[#C92A2A] hover:bg-[#A61E1E] disabled:bg-slate-700 text-white font-bold rounded-md text-xs transition-colors flex items-center space-x-1.5 shadow-md shrink-0"
         >
           <Film className="w-3.5 h-3.5" />
           <span>{isRendering ? 'Rendering...' : 'Render Shot'}</span>
