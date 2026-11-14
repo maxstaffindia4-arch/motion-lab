@@ -695,7 +695,10 @@ export const App: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col h-screen w-screen bg-[#0B0F19] text-[#F8FAFC] overflow-hidden select-none">
+    <div
+      className="flex flex-col h-dvh min-h-0 bg-[#0B0F19] text-[#F8FAFC] overflow-hidden"
+      style={{ background: 'var(--bg-base)', color: 'var(--text-primary)' }}
+    >
       {/* Top Bar */}
       <TopBar
         currentShot={currentShot}
@@ -731,7 +734,7 @@ export const App: React.FC = () => {
       />
 
       {/* Main 3-Column Workspace */}
-      <div className="flex-1 flex overflow-hidden">
+      <div className="flex-1 flex overflow-hidden min-h-0 min-w-0">
         {/* Left Column: Project > Video > Shot Tree */}
         <ProjectTree
           project={project}
@@ -752,7 +755,9 @@ export const App: React.FC = () => {
         />
 
         {/* Center Column: Preview & Frame Scrubber */}
-        <PreviewCanvas shot={currentShot} refreshTrigger={refreshTrigger} isGenerating={isGenerating} />
+        <div className="flex-1 min-w-0 overflow-hidden flex flex-col h-full">
+          <PreviewCanvas shot={currentShot} refreshTrigger={refreshTrigger} isGenerating={isGenerating} />
+        </div>
 
         {/* Right Column: Multi-Tab Studio Panel */}
         <TabsPanel
