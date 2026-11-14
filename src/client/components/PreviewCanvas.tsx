@@ -127,27 +127,27 @@ export const PreviewCanvas: React.FC<PreviewCanvasProps> = ({ shot, refreshTrigg
   return (
     <div className="flex-1 bg-[#090D16] flex flex-col h-full overflow-hidden select-none">
       {/* Top Controls Toolbar */}
-      <div className="h-10 bg-[#111827] border-b border-[#243247] px-4 flex items-center justify-between text-xs">
-        <div className="flex items-center space-x-3">
-          <span className="font-bold text-white flex items-center space-x-1.5">
+      <div className="min-h-10 bg-[#111827] border-b border-[#243247] px-4 py-1.5 flex flex-wrap items-center justify-between gap-2 text-xs">
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="font-bold text-white flex items-center space-x-1.5 shrink-0">
             <span className="w-2 h-2 rounded-full bg-emerald-400"></span>
             <span>Viewport: 1920×1080 (16:9)</span>
           </span>
           <span className="text-[#64748B]">·</span>
-          <span className="text-[#94A3B8] font-mono">
+          <span className="text-[#94A3B8] font-mono shrink-0">
             Mode: <strong className="text-cyan-400 uppercase">{shot?.outputMode || 'overlay-alpha'}</strong>
           </span>
           {shot && (
             <>
               <span className="text-[#64748B]">·</span>
-              <span className="text-slate-400 font-mono text-[11px]">
+              <span className="text-slate-400 font-mono text-[11px] truncate max-w-[200px]" title={`Shot ${shot.shotNumber} (${shot.duration}s)`}>
                 Shot {shot.shotNumber} ({shot.duration}s)
               </span>
             </>
           )}
         </div>
 
-        <div className="flex items-center space-x-2">
+        <div className="flex flex-wrap items-center gap-2 shrink-0">
           {/* Background Toggle (Checkerboard | Dark | Light | Green) */}
           <div className="flex items-center bg-[#1E293B] border border-[#334155] rounded p-0.5 text-[10px]">
             <button
@@ -232,7 +232,7 @@ export const PreviewCanvas: React.FC<PreviewCanvasProps> = ({ shot, refreshTrigg
                 key={`${shot.id}-${shot.currentVersionId}-${refreshTrigger}-${bgMode}`}
                 src={`/preview-frame/${shot.id}?t=${refreshTrigger}&bg=${bgMode}`}
                 onLoad={handleIframeLoaded}
-                sandbox="allow-scripts allow-same-origin"
+                sandbox="allow-scripts"
                 className="border-0 pointer-events-auto"
                 style={{
                   width: '1920px',
@@ -319,6 +319,7 @@ export const PreviewCanvas: React.FC<PreviewCanvasProps> = ({ shot, refreshTrigg
             <button
               onClick={() => seekTime(0)}
               title="Reset to Frame 0"
+              aria-label="Reset to Frame 0"
               className="p-1.5 rounded hover:bg-[#1E293B] text-[#94A3B8] hover:text-white transition-colors"
             >
               <RotateCcw className="w-4 h-4" />
@@ -327,6 +328,7 @@ export const PreviewCanvas: React.FC<PreviewCanvasProps> = ({ shot, refreshTrigg
             <button
               onClick={togglePlay}
               title={isPlaying ? 'Pause' : 'Play'}
+              aria-label={isPlaying ? 'Pause' : 'Play'}
               className="px-3 py-1.5 rounded-md bg-[#C92A2A] hover:bg-[#A61E1E] text-white font-bold flex items-center space-x-1 transition-colors shadow-md"
             >
               {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4 fill-white" />}

@@ -108,7 +108,7 @@ The following verification scripts are available via `npm run`:
 | Topic | Status | Details |
 |---|---|---|
 | **Alpha Output** | Verified | HyperFrames outputs Apple ProRes 4444 with `yuva444p12le` alpha stream into MOV, fully compatible with CapCut overlays. |
-| **Studio Embedding** | Evaluated | Standalone sandboxed iframe with `sandbox="allow-scripts"` and postMessage timeline scrubber (`tl.seek(t)`) is superior for deterministic security without iframe CORS/CSP blocking. |
+| **Studio Embedding** | Evaluated | The preview iframe uses sandbox='allow-scripts' (no allow-same-origin), so generated HTML cannot access the parent app's cookies, localStorage or API endpoints. postMessage timeline scrubber (`tl.seek(t)`) is used for all parent↔iframe communication. |
 | **Custom Fonts** | In Place | Bundled `Inter`, `Montserrat`, `JetBrains Mono` resolve deterministically; local font cache handled via `@font-face`. |
 | **Brand Tokens** | Initialized | Staff India tokens configured in `brand/tokens.json`: Crimson (`#C92A2A`), Blue (`#2563EB`), Emerald Green (`#10B981`), Cyan (`#06B6D4`), and CapCut overlay presets. |
 
